@@ -5,6 +5,7 @@ import {
 import identity from 'lodash/identity';
 import useDefaults from '../useDefaults';
 import createClient from './createClient';
+import isBrowser from '../../utils/isBrowser';
 
 export default function useGraphQLProvider(options) {
   const [user, setUser] = useState(null);
@@ -29,7 +30,11 @@ export default function useGraphQLProvider(options) {
     userHander,
   });
 
-  const client = useMemo(() => createClient(configs), [configs]);
+  const client = useMemo(() => {
+    console.log({configs})
+    if (isBrowser === false) return {};
+    return createClient(configs);
+  }, [configs]);
 
   const { promise: suspense } = initialize.current;
   return [client, { user, suspense }];

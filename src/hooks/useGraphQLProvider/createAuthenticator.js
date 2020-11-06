@@ -25,6 +25,11 @@ export default function createAuthenticator(client) {
       storage.setItem('dragontiger-access-token', value);
       storage.setItem('dragontiger-expired', Date.now() + 55 * 60 * 1000);
     },
+    clearAccess() {
+      storage.removeItem('dragontiger-access-token');
+      storage.removeItem('dragontiger-refresh-token');
+      storage.removeItem('dragontiger-expired');
+    },
     getRefresh() {
       return storage.getItem('dragontiger-refresh-token') || '';
     },
@@ -37,6 +42,8 @@ export default function createAuthenticator(client) {
         method: 'POST', url: configs.authorization, data: { action: 'signIn', ...params },
       });
       configs.userHander(result);
+      self.setAccess(result.data.accessToken);
+      self.setRefresh(result.data.refreshToken);
       return result;
     },
     async signOut(params) {
@@ -48,8 +55,7 @@ export default function createAuthenticator(client) {
         return result;
       } finally {
         configs.userHander(null);
-        self.setAccess('');
-        self.setRefresh('');
+        self.clearAccess();
       }
     },
     async renew(params) {
@@ -61,15 +67,14 @@ export default function createAuthenticator(client) {
         const result = await fetch({
           method: 'POST', url: configs.authorization, data: { action: 'renew', refreshToken: refresh, ...params },
         });
-        self.setAccess(result.accessToken);
-        self.setRefresh(result.refreshToken);
+        self.setAccess(result.data.accessToken);
+        self.setRefresh(result.data.refreshToken);
         configs.userHander(result);
         return result;
       } catch (error) {
         if (NetworkError.isForbidden(error)) {
           configs.userHander(null);
-          self.setAccess('');
-          self.setRefresh('');
+          self.clearAccess();
         }
         throw error;
       }

@@ -1,4 +1,4 @@
-import assign from 'lodash/assign';
+import _ from 'lodash';
 
 function isNull(value) {
   return value === undefined || value === null;
@@ -50,7 +50,7 @@ export default function createCache(client) {
     },
     merge(name, value) {
       const tmp = this.get(name) || {};
-      this.set(name, { ...tmp, ...value });
+      _.merge(tmp, value);
       return tmp;
     },
     expired(name) {
