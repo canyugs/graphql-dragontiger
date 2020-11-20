@@ -42,7 +42,7 @@ export default function useMutation(tag, ...args) {
       if (autoReset !== undefined) setTimeout(resetState, autoReset);
     }
     return null;
-  }, [request, params, resetState]);
+  }, [request, params, error, state, resetState]);
 
   return [mutate, { error, state, resetState }];
 }
